@@ -1,3 +1,4 @@
+.gitignore +build/
 .godot/
 *.log
 *.tmp

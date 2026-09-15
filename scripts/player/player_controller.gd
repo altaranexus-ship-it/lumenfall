@@ -68,7 +68,7 @@ func _input_vector() -> Vector2:
 func _process_locomotion(delta: float) -> void:
 	var gliding := _is_gliding()
 	var iv := _input_vector()
-	var direction := (transform.basis * Vector3(iv.x, 0.0, iv.z)).normalized()
+	var direction := (transform.basis * Vector3(iv.x, 0.0, iv.y)).normalized()
 	var running := input_enabled and Input.is_action_pressed("sprint")
 	var target_speed := run_speed if running else walk_speed
 	var control := 1.0 if is_on_floor() else air_control
