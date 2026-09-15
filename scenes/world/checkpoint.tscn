@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://lfcheckpoint01"]
+
+[ext_resource type="Script" path="res://scripts/world/checkpoint.gd" id="1_cp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_lfcp1"]
+radius = 6.0
+
+[node name="Checkpoint" type="Area3D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_cp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_lfcp1")

@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://lfdbgoverlay01"]
+
+[ext_resource type="Script" path="res://scripts/core/debug_overlay.gd" id="1_overlay"]
+
+[node name="DebugOverlay" type="CanvasLayer"]
+layer = 100
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 560.0
+offset_bottom = 60.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BuildLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "build ?+????"
+theme_override_font_sizes/font_size = 15
+
+[node name="InfoLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "..."
+theme_override_font_sizes/font_size = 12

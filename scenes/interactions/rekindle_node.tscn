@@ -1,0 +1,52 @@
+[gd_scene load_steps=5 format=3 uid="uid://lfrekindle0001"]
+
+[ext_resource type="Script" path="res://scripts/interactions/rekindle_node.gd" id="1_rn"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lfrn1"]
+size = Vector3(1.0, 2.2, 1.0)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_lfrn2"]
+radius = 2.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_lfrn3"]
+size = Vector3(0.8, 2.2, 0.8)
+
+[sub_resource type="SphereMesh" id="SphereMesh_lfrn4"]
+radius = 0.35
+height = 0.7
+
+[node name="RekindleNode" type="StaticBody3D"]
+collision_layer = 5
+collision_mask = 0
+script = ExtResource("1_rn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_lfrn1")
+
+[node name="BeaconMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+mesh = SubResource("BoxMesh_lfrn3")
+skeleton = NodePath("..")
+
+[node name="FlameMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45, 0)
+mesh = SubResource("SphereMesh_lfrn4")
+skeleton = NodePath("..")
+
+[node name="Flame" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
+visible = false
+light_color = Color(1, 0.8, 0.5, 1)
+light_energy = 1.4
+omni_range = 11.0
+
+[node name="Area" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 2
+monitoring = false
+monitorable = true
+
+[node name="AreaShape" type="CollisionShape3D" parent="Area"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("SphereShape3D_lfrn2")

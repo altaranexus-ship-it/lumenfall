@@ -1,0 +1,114 @@
+[gd_scene load_steps=14 format=3 uid="uid://lfgreyboxmap01"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/interactions/rekindle_node.tscn" id="2_rn"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoint.tscn" id="3_cp"]
+[ext_resource type="Script" path="res://scripts/world/greybox_visuals.gd" id="4_gv"]
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="5_hz"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_lfground"]
+size = Vector2(96, 96)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lfworld"]
+size = Vector3(96, 1, 96)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lfhaz"]
+size = Vector3(8, 1, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lfwall"]
+size = Vector3(1, 4, 14)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lfplata"]
+size = Vector3(8, 1, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lfwallm"]
+size = Vector3(1, 4, 14)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lfhazm"]
+size = Vector3(8, 0.5, 3)
+
+[sub_resource type="Environment" id="Environment_lfenv"]
+background_mode = 0
+ambient_light_source = 2
+ambient_light_color = Color(0.35, 0.38, 0.45, 1)
+ambient_light_energy = 1.0
+tonemap_mode = 2
+
+[node name="GreyboxMap" type="Node3D"]
+script = ExtResource("4_gv")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="GroundShape" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_lfworld")
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_lfground")
+
+[node name="PlatformA" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -10)
+
+[node name="Shape" type="CollisionShape3D" parent="PlatformA"]
+shape = SubResource("BoxShape3D_lfhaz")
+
+[node name="Mesh" type="MeshInstance3D" parent="PlatformA"]
+mesh = SubResource("BoxMesh_lfplata")
+
+[node name="PlatformB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, -18)
+
+[node name="Shape" type="CollisionShape3D" parent="PlatformB"]
+shape = SubResource("BoxShape3D_lfhaz")
+
+[node name="Mesh" type="MeshInstance3D" parent="PlatformB"]
+mesh = SubResource("BoxMesh_lfplata")
+
+[node name="ClimbWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2, -14)
+collision_layer = 8
+
+[node name="Shape" type="CollisionShape3D" parent="ClimbWall"]
+shape = SubResource("BoxShape3D_lfwall")
+
+[node name="Mesh" type="MeshInstance3D" parent="ClimbWall"]
+mesh = SubResource("BoxMesh_lfwallm")
+
+[node name="Hazard" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 6)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="Shape" type="CollisionShape3D" parent="Hazard"]
+shape = SubResource("BoxShape3D_lfhaz")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazard"]
+mesh = SubResource("BoxMesh_lfhazm")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 10)
+
+[node name="Rekindle1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+node_id = "rekindle_01"
+
+[node name="Rekindle2" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 2, -10)
+node_id = "rekindle_02"
+
+[node name="Rekindle3" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4, -18)
+node_id = "rekindle_03"
+
+[node name="Checkpoint" parent="." instance=ExtResource("3_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+checkpoint_id = "cp_grove"
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 12, 18, 10)
+light_energy = 0.75
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_lfenv")
