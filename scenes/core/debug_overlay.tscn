@@ -5,6 +5,7 @@
 [node name="DebugOverlay" type="CanvasLayer"]
 layer = 100
 visible = false
+script = ExtResource("1_overlay")
 
 [node name="Panel" type="PanelContainer" parent="."]
 offset_left = 8.0

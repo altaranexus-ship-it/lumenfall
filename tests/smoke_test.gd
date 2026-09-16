@@ -5,11 +5,17 @@ extends Node
 ## Boots the REAL greybox map, so autoloads, scene wiring, and physics are live.
 
 var _failures: PackedStringArray = []
-var _phase := 0
 
 
 func _ready() -> void:
+	# Hard watchdog: never let a crashed assertion strand the process.
+	get_tree().create_timer(90.0).timeout.connect(func() -> void:
+		print("SMOKE_RESULT=TIMEOUT")
+		get_tree().quit(2))
+
 	# Boot the real map as the current scene, exactly like a normal run.
+	# Wait one frame first: root is busy adding THIS node during _ready.
+	await get_tree().process_frame
 	var map: PackedScene = load("res://scenes/greybox_map.tscn")
 	var map_instance := map.instantiate()
 	get_tree().root.add_child(map_instance)
@@ -50,11 +56,15 @@ func _ready() -> void:
 	_assert(rn1.state == RekindleNode.RState.CARRYING, "node1 CARRYING after offer")
 	_assert(not carrier.is_carrying(), "lumen transferred to node")
 
-	# Simulate the hold: kindle_time design-locked at 1.2 s.
+	# Simulate the hold through the REAL input path: Input.action_press works
+	# headless (verified via probe.gd), and rekindle_node._process polls
+	# Input.is_action_pressed("interact") each frame while CARRYING.
+	Input.action_press("interact")
 	var t := 0.0
 	while t < GameConfig.KINDLE_TIME + 0.2:
 		await get_tree().physics_frame
 		t += 1.0 / 60.0
+	Input.action_release("interact")
 	_assert(rn1.is_kindled(), "node1 KINDLED after hold >= kindle_time")
 
 	# Propagation: node1->node2 distance ~10.7 m, node2->node3 ~10.8 m; tier

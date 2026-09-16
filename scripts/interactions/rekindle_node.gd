@@ -97,7 +97,12 @@ func receive_lumen(carrier: Node) -> bool:
 func _complete_kindle() -> void:
 	_set_state(RState.KINDLED)
 	_dim_left = GameConfig.DIM_TIME
-	_propagate_light(1, GameConfig.PROPAGATION_TIERS)
+	# Expanding wave from the SOURCE: tier N lights every dormant node within
+	# propagation_radius_step * N metres of this node (design-lock: "tier N
+	# reaches nodes within step * N metres"). A hop-only chain dies when no
+	# node sits inside tier 1, so the wave widens from the source instead.
+	for tier in range(1, GameConfig.PROPAGATION_TIERS + 1):
+		_propagate_light(tier, GameConfig.PROPAGATION_TIERS)
 	var tree := get_tree()
 	if tree != null:
 		var checkpoint := tree.get_first_node_in_group("checkpoint")
