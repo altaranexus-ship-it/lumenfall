@@ -21,6 +21,10 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+# rule/collector modules live in the aa_asset_linter/ package dir
+PKG = os.path.join(HERE, "aa_asset_linter")
+if os.path.isdir(PKG) and PKG not in sys.path:
+    sys.path.insert(0, PKG)
 
 import aa_linter_rules as rules  # noqa: E402
 
