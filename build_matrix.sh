@@ -127,7 +127,10 @@ leg_godot_macos() {
   if [ ! -f "$OUT/macos/LUMENFALL.zip" ]; then
     gate_fail godot_macos "macOS artifact missing (LUMENFALL.zip)"; return
   fi
-  if ! unzip -l "$OUT/macos/LUMENFALL.zip" 2>/dev/null | grep -q '\.app/Contents/MacOS/'; then
+  # NOTE: no `grep -q` here — under `set -o pipefail` grep -q early-exits after the
+  # first match, unzip dies with SIGPIPE (141), and the pipeline reports failure on a
+  # perfectly valid zip. `grep -c >/dev/null` consumes all input, no SIGPIPE.
+  if [ "$(unzip -l "$OUT/macos/LUMENFALL.zip" 2>/dev/null | grep -c '\.app/Contents/MacOS/')" -eq 0 ]; then
     gate_fail godot_macos "zip does not contain LUMENFALL.app bundle"; return
   fi
   if has_err "$LOGS/export_macos.log"; then

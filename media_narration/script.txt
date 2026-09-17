@@ -1,0 +1,7 @@
+The world has gone dark. LUMENFALL is an atmospheric 3D platform-adventure built in Godot four point five.
+You are the last light-bearer. Explore greybox ruins, rekindle cold beacons, and watch them come alive.
+Carry flame between beacons — what you kindle stays lit, pushing the darkness back checkpoint by checkpoint.
+Walk, run, climb and glide with a full 3C controller, camera-collision aware.
+Progress persists through checkpoint save and load.
+This is the foundation slice, running live in the browser right now. MIT licensed, open source.
+LUMENFALL — rekindle the world.
