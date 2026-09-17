@@ -1,5 +1,5 @@
-.gitignore
 build/
+builds/
 .godot/
 *.log
 *.tmp
