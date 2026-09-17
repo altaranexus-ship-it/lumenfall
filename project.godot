@@ -19,6 +19,7 @@ GameConfig="*res://scripts/core/game_config.gd"
 SaveManager="*res://scripts/core/save_manager.gd"
 BuildInfo="*res://scripts/core/build_info.gd"
 DebugOverlay="*res://scenes/core/debug_overlay.tscn"
+AudioManager="*res://scripts/core/audio_manager.gd"
 
 [display]
 
