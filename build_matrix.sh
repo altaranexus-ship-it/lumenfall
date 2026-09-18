@@ -57,6 +57,27 @@ run_logged() { # run_logged <timeout_s> <logfile> <cmd...>  -> exit code of cmd
 
 has_err() { grep -Eq '^(ERROR|SCRIPT ERROR)' "$1"; }
 
+inject_tips_widget() { # add the Cookie Crumbs on-chain tip widget to the exported web shell
+  # Idempotent: skips if the marker is already present. Non-fatal on failure —
+  # the tip widget is a revenue surface, not a release gate.
+  local html="$OUT/web/index.html" marker="cookie-crumbs/embed.js"
+  if [ ! -f "$html" ]; then return 0; fi
+  if grep -q "$marker" "$html"; then
+    say "  web: tips widget already present (skipping injection)"
+    return 0
+  fi
+  if ! perl -0pi -e 's|\t</body>|\t<div style="position:fixed;left:12px;bottom:12px;z-index:9999">\n\t\t<script src="https://altaranexus-ship-it.github.io/cookie-crumbs/embed.js" data-label="Tip the devs 🍪"></script>\n\t</div>\n\t</body>|' "$html"; then
+    say "  web: tips widget injection failed (non-fatal)"
+    return 0
+  fi
+  if grep -q "$marker" "$html"; then
+    say "  web: Cookie Crumbs tips widget injected (CLAW-72)"
+  else
+    say "  web: tips widget injection produced no change (non-fatal)"
+  fi
+  return 0
+}
+
 gate_fail() { # gate_fail <leg> <msg>
   say "  FAIL: $2"
   verdict "$1" FAIL
@@ -128,6 +149,7 @@ leg_godot_web() {
     grep -E '^(ERROR|SCRIPT ERROR)' "$LOGS/export_web.log" | head -5 | while IFS= read -r l; do say "    $l"; done
     return
   fi
+  inject_tips_widget
   kb="$(du -sk "$OUT/web" | cut -f1)"
   mb=$(( kb / 1024 ))
   if [ "$kb" -gt $(( WEB_BUDGET_MB * 1024 )) ]; then
