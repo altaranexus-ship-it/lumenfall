@@ -18,7 +18,19 @@
 set -uo pipefail
 
 PROJ="$(cd "$(dirname "$0")" && pwd)"
-GODOT="${GODOT_BIN:-$HOME/tools/godot-4.5.1/Godot_v4.5.1-stable_macos.universal/Godot_v4.5.1-stable_macos.universal}"
+# Binary discovery (ordered): explicit GODOT_BIN > legacy raw-universal layout
+# > app-bundle layouts under ~/tools/godot-4.*. Do NOT hard-code a single path —
+# the tools dir layout has drifted before (raw binary -> Godot.app bundle).
+GODOT="${GODOT_BIN:-}"
+if [ -z "$GODOT" ]; then
+  for cand in \
+    "$HOME/tools/godot-4.5.1/Godot_v4.5.1-stable_macos.universal/Godot_v4.5.1-stable_macos.universal" \
+    "$HOME/tools/godot-4.5.1/Godot.app/Contents/MacOS/Godot" \
+    "$HOME"/tools/godot-4.*/Godot.app/Contents/MacOS/Godot; do
+    if [ -x "$cand" ]; then GODOT="$cand"; break; fi
+  done
+fi
+GODOT_REQUIRED="${GODOT_REQUIRED:-1}"   # missing godot binary = FAIL (release gate), not SKIP
 REF_NAME="${CI_COMMIT_REF_NAME:-local}"
 BUILDNUM="${CI_PIPELINE_IID:-$(date -u +%Y%m%d.%H%M%S)}"
 BUILD_ROOT="${LUMENFALL_BUILD_ROOT:-$PROJ/builds}"
@@ -54,8 +66,16 @@ gate_fail() { # gate_fail <leg> <msg>
 godot_preflight() {
   say "== [godot] preflight: import + smoke =="
   if [ ! -x "$GODOT" ]; then
-    say "  godot binary missing or not executable: $GODOT"
-    verdict godot_web SKIP; verdict godot_macos SKIP
+    if [ "$GODOT_REQUIRED" = "1" ]; then
+      # Release gate contract: godot legs are REQUIRED. A missing engine binary
+      # must FAIL the matrix (exit 1), not SKIP green — a green run that builds
+      # nothing is the worst possible gate signal.
+      gate_fail godot_web "godot binary missing or not executable: ${GODOT:-<none found>} (set GODOT_BIN; see header)"
+      verdict godot_macos FAIL
+    else
+      say "  SKIP: godot binary missing (${GODOT:-<none found>}); GODOT_REQUIRED=0"
+      verdict godot_web SKIP; verdict godot_macos SKIP
+    fi
     return 1
   fi
   say "  engine: $("$GODOT" --version 2>/dev/null | tail -1)"
