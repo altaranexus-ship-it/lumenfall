@@ -21,6 +21,22 @@ if HERE not in sys.path:
 import aa_linter_rules as rules  # noqa: E402
 
 
+def _rotation_of(obj):
+    """Euler-equivalent XYZ radians regardless of the object's rotation mode.
+
+    Rules engine checks identity against euler values; a QUATERNION or
+    AXIS_ANGLE object would otherwise dodge L-11/L-16 entirely.
+    """
+    mode = obj.rotation_mode
+    if mode == "QUATERNION":
+        return obj.rotation_quaternion.to_euler()
+    if mode == "AXIS_ANGLE":
+        aa = obj.rotation_axis_angle
+        from mathutils import Quaternion
+        return Quaternion((aa[1], aa[2], aa[3]), aa[0]).to_euler()
+    return obj.rotation_euler
+
+
 def _tri_count(mesh):
     """Triangle count from polygon loop totals (no tessface allocation)."""
     total = 0
@@ -42,6 +58,18 @@ def _material_snapshot(mat):
             w = int(img.size[0])
             h = int(img.size[1])
             if w <= 0 or h <= 0:
+                # Size 0 = never rasterized. Classify why so the rule engine can
+                # warn (packed/unloaded) or error (file missing on disk).
+                tex = {"name": img.name, "width": 0, "height": 0}
+                if img.packed_file is not None:
+                    tex["packed"] = True
+                else:
+                    fp = bpy.path.abspath(img.filepath) if img.filepath else ""
+                    if fp and os.path.isfile(fp):
+                        tex["on_disk"] = True
+                    else:
+                        tex["unresolved"] = True
+                out["textures"].append(tex)
                 continue
             out["textures"].append({"name": img.name, "width": w, "height": h})
     return out
@@ -91,7 +119,7 @@ def collect_snapshot():
             "parent": ob.parent.name if ob.parent is not None else None,
             "depth": _depth_of(ob),
             "location": [round(v, 6) for v in ob.location],
-            "rotation": [round(v, 6) for v in ob.rotation_euler],
+            "rotation": [round(v, 6) for v in _rotation_of(ob)],
             "rotation_mode": ob.rotation_mode,
             "scale": [round(v, 6) for v in ob.scale],
         }
@@ -144,13 +172,18 @@ def main(argv, flags=None):
     flags = list(flags or [])
     if not paths_or_usage_error(argv):
         print("usage: blender --background --python scripts_tool/aa_asset_linter.py -- "
-              "<file-or-dir> ... [--snapshot out.json] [--json]", file=sys.stderr)
+              "<file-or-dir> ... [--greybox] [--snapshot out.json] [--json]", file=sys.stderr)
         return 2
 
     files = _expand_paths(argv)
     if files is None:
         return 2
+    if not files:
+        print("[L-99] ERROR: no .blend files found in the given path(s); "
+              "an empty run must not read as a clean pass", file=sys.stderr)
+        return 2
 
+    greybox = "--greybox" in flags
     all_findings = []
     snapshots = []
     for fp in files:
@@ -161,6 +194,10 @@ def main(argv, flags=None):
             all_findings.append(rules.Finding("L-99", rules.SEV_ERROR, "cannot open file", file=fp))
             continue
         snap = collect_snapshot()
+        if greybox:
+            # spec §9: blockout/greybox assets are exempt from UV (L-15)
+            # and material (L-30..L-33) families
+            snap["greybox"] = True
         snap["source"] = fp
         snapshots.append(snap)
         all_findings = all_findings + rules.run_rules(snap)

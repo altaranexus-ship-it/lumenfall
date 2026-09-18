@@ -167,12 +167,15 @@ def _rules_naming(objs):
             if not COL_RE.match(name):
                 out.append(Finding("L-01", SEV_ERROR, "COL helper name must match COL_<name>", name))
             continue
-        if not NAME_RE.match(name):
+        # spec §2: <cat>_<name>[_<variant>][_LOD<N>] — the LOD suffix is
+        # uppercase, so strip it before the lower_snake_case match.
+        base = _base_name(name)
+        if not NAME_RE.match(base):
             out.append(Finding("L-01", SEV_ERROR, "name must be lower_snake_case [a-z0-9_]", name))
             continue
-        if _cat_of(name) is None:
+        if _cat_of(base) is None:
             out.append(Finding("L-02", SEV_ERROR, "name must start with a category: %s" % "|".join(CATEGORIES), name))
-        if _lod_of(name) is None and not _is_helper(name) and "lod" in name.lower():
+        if _lod_of(name) is None and "lod" in base:
             out.append(Finding("L-04", SEV_ERROR, "LOD marker must be final segment _LOD<N>, N single digit", name))
         lod = _lod_of(name)
         if lod is not None:
@@ -256,7 +259,7 @@ def _rules_transforms(objs):
         if any(s < 0 for s in scl):
             out.append(Finding("L-13", SEV_ERROR, "negative (mirrored) scale", name))
         elif not _vec_close(scl, (1.0, 1.0, 1.0), SCALE_TOL):
-            out.append(Finding("L-12", SEV_ERROR, "unapplied scale (tol 0.1%%)", name))
+            out.append(Finding("L-12", SEV_ERROR, "unapplied scale (tol 0.1%)", name))
         if any(abs(s) > SCALE_HUGE for s in scl):
             out.append(Finding("L-14", SEV_ERROR, "scale magnitude > %.0f on some axis" % SCALE_HUGE, name))
     return out
@@ -322,6 +325,15 @@ def _rules_materials(objs):
                 w = t.get("width", 0)
                 h = t.get("height", 0)
                 mx = max(w, h)
+                if mx == 0:
+                    # Collector could not rasterize this image: packed/unloaded
+                    # sources give no pixel buffer. Unresolved path = the export
+                    # would ship a broken texture reference — that is an error.
+                    if t.get("unresolved"):
+                        out.append(Finding("L-30", SEV_ERROR, "texture file missing on disk: %s" % tname, "%s/%s" % (name, mname)))
+                    else:
+                        out.append(Finding("L-30", SEV_WARN, "texture not loaded (packed or unloaded): %s" % tname, "%s/%s" % (name, mname)))
+                    continue
                 if mx >= TEX_HARD_FAIL:
                     out.append(Finding("L-31", SEV_ERROR, "texture %dx%d >= %d hard fail" % (w, h, TEX_HARD_FAIL), "%s/%s" % (name, tname)))
                 elif not _is_pot(w) or not _is_pot(h):
@@ -405,6 +417,20 @@ FAMILIES = (
 )
 
 
+def _obj_in_export_set(obj, asm):
+    """True if the object lives in any ASM_* collection.
+
+    Collector emits obj["collection"] as a list of collection names
+    (users_collection); CI fixtures may use a single string. Both accepted.
+    """
+    cols = obj.get("collection")
+    if isinstance(cols, str):
+        cols = [cols]
+    if not isinstance(cols, (list, tuple)):
+        return False
+    return any(c in asm for c in cols)
+
+
 def run_rules(snapshot):
     """Run all v1 rules against one snapshot dict. Returns list[Finding]."""
     findings = []
@@ -412,7 +438,7 @@ def run_rules(snapshot):
     collections = [c for c in snapshot.get("collections", []) if isinstance(c, str)]
     asm = set(c for c in collections if c.startswith("ASM_"))
     greybox = bool(snapshot.get("greybox"))
-    export_objs = [o for o in objs if o.get("collection") in asm]
+    export_objs = [o for o in objs if _obj_in_export_set(o, asm)]
     if greybox:
         # greybox dispatch: UV (L-15) and material (L-30..L-33) families skipped
         for family in FAMILIES:

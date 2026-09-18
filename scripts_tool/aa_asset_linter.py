@@ -140,4 +140,11 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        # fail-closed: an unexpected crash must never read as a clean pass in CI
+        print("[L-99] ERROR: linter crashed: %r" % (exc,), file=sys.stderr)
+        sys.exit(1)

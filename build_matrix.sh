@@ -189,6 +189,48 @@ summary() {
   return "$overall"
 }
 
+# ---------------------------------------------------------------- asset linter gate (§2.2)
+# Validates committed glTF-export snapshots via the division asset linter v1
+# (docs/art_pipeline/AA-ARTPIPE-1, §8): python3 scripts_tool/aa_asset_linter.py
+# <snapshot.json ...>. Exit 0 clean/warnings-only, 1 errors, 2 usage.
+# No snapshots committed yet => SKIP (greybox slice; assets flow at D4 lock).
+asset_lint_gate() {
+  say "== [assets] preflight: aa_asset_linter v1 (§2.2 gate) =="
+  local snapdir="$PROJ/docs/art_pipeline/snapshots"
+  local py
+  py="$(command -v python3 || true)"
+  if [ -z "$py" ]; then
+    say "  SKIP: python3 not on PATH"
+    verdict asset_lint SKIP
+    return 0
+  fi
+  local snaps=()
+  local f
+  if [ -d "$snapdir" ]; then
+    for f in "$snapdir"/*.json; do [ -f "$f" ] && snaps+=("$f"); done
+  fi
+  if [ "${#snaps[@]}" -eq 0 ]; then
+    say "  SKIP: no committed snapshots in docs/art_pipeline/snapshots/ yet"
+    verdict asset_lint SKIP
+    return 0
+  fi
+  say "  linting ${#snaps[@]} snapshot(s): $(printf '%s ' "${snaps[@]##*/}")"
+  if "$py" "$PROJ/scripts_tool/aa_asset_linter.py" "${snaps[@]}" >"$LOGS/lint.log" 2>&1; then
+    say "  asset linter: clean (warnings only, if any) — $(grep -c '\[L-' "$LOGS/lint.log" 2>/dev/null || echo 0) finding line(s)"
+    verdict asset_lint PASS
+    return 0
+  else
+    local rc=$?
+    if [ "$rc" -eq 2 ]; then
+      gate_fail asset_lint "linter usage error (rc=2) — check snapshot args ($LOGS/lint.log)"
+    else
+      gate_fail asset_lint "asset linter errors (rc=$rc):"
+      grep '\[L-' "$LOGS/lint.log" | head -8 | while IFS= read -r l; do say "    $l"; done
+    fi
+    return 1
+  fi
+}
+
 # ---------------------------------------------------------------- main
 mkdir -p "$OUT" "$LOGS"
 mkdir -p "$BUILD_ROOT"
@@ -197,9 +239,11 @@ touch "$BUILD_ROOT/.gdignore"   # keep build output out of Godot's next export s
 say "LUMENFALL build & release matrix — Studio Pipeline Standard v1.0 §2.2/§2.3"
 say "project: $PROJ"
 
-if godot_preflight; then
-  leg_godot_web
-  leg_godot_macos
+if asset_lint_gate; then
+  if godot_preflight; then
+    leg_godot_web
+    leg_godot_macos
+  fi
 fi
 leg_unity
 leg_unreal
