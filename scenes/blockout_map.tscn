@@ -1,0 +1,426 @@
+[gd_scene load_steps=40 format=3 uid="uid://lfblockout001"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/interactions/rekindle_node.tscn" id="2_rn"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoint.tscn" id="3_cp"]
+[ext_resource type="Script" path="res://scripts/world/blockout_visuals.gd" id="4_gv"]
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="5_hz"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hub"]
+size = Vector3(26, 1, 26)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dais"]
+size = Vector3(6, 1, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_walk"]
+size = Vector3(14, 0.8, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lwalk"]
+size = Vector3(16, 0.8, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ledge"]
+size = Vector3(2.4, 0.8, 4.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bridgeb"]
+size = Vector3(4, 0.8, 8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bridgec"]
+size = Vector3(4, 0.8, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_channel"]
+size = Vector3(40, 2, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(34, 1, 22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plat"]
+size = Vector3(30, 1, 52)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plinth"]
+size = Vector3(6, 8, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_shaft"]
+size = Vector3(10, 26, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sb"]
+size = Vector3(14, 0.8, 3.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hazW"]
+size = Vector3(18, 1, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hazA"]
+size = Vector3(14, 1, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_net"]
+size = Vector3(220, 1, 220)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hub"]
+size = Vector3(26, 1, 26)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dais"]
+size = Vector3(6, 1, 6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_walk"]
+size = Vector3(14, 0.8, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lwalk"]
+size = Vector3(16, 0.8, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ledge"]
+size = Vector3(2.4, 0.8, 4.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bridgeb"]
+size = Vector3(4, 0.8, 8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bridgec"]
+size = Vector3(4, 0.8, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_channel"]
+size = Vector3(40, 2, 6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(34, 1, 22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_plat"]
+size = Vector3(30, 1, 52)
+
+[sub_resource type="BoxMesh" id="BoxMesh_plinth"]
+size = Vector3(6, 8, 6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_shaft"]
+size = Vector3(10, 26, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sb"]
+size = Vector3(14, 0.8, 3.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_npc"]
+size = Vector3(1.4, 2.4, 1.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lamp"]
+size = Vector3(0.5, 3.2, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hazWm"]
+size = Vector3(18, 0.5, 5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hazAm"]
+size = Vector3(14, 0.5, 2)
+
+[sub_resource type="Environment" id="Environment_blk"]
+background_mode = 0
+ambient_light_source = 2
+ambient_light_color = Color(0.32, 0.35, 0.42, 1)
+ambient_light_energy = 1.0
+tonemap_mode = 2
+
+[node name="BlockoutMap" type="Node3D"]
+script = ExtResource("4_gv")
+
+[node name="HubGround" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="HubGround"]
+shape = SubResource("BoxShape3D_hub")
+
+[node name="Mesh" type="MeshInstance3D" parent="HubGround"]
+mesh = SubResource("BoxMesh_hub")
+
+[node name="Dais" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Dais"]
+shape = SubResource("BoxShape3D_dais")
+
+[node name="Mesh" type="MeshInstance3D" parent="Dais"]
+mesh = SubResource("BoxMesh_dais")
+
+[node name="HubBridge" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -2.5)
+
+[node name="Shape" type="CollisionShape3D" parent="HubBridge"]
+shape = SubResource("BoxShape3D_walk")
+
+[node name="Mesh" type="MeshInstance3D" parent="HubBridge"]
+mesh = SubResource("BoxMesh_walk")
+
+[node name="LWalk" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, -0.1, -2.5)
+
+[node name="Shape" type="CollisionShape3D" parent="LWalk"]
+shape = SubResource("BoxShape3D_lwalk")
+
+[node name="Mesh" type="MeshInstance3D" parent="LWalk"]
+mesh = SubResource("BoxMesh_lwalk")
+
+[node name="LedgeA" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.4, 1.5)
+collision_layer = 9
+
+[node name="Shape" type="CollisionShape3D" parent="LedgeA"]
+shape = SubResource("BoxShape3D_ledge")
+
+[node name="Mesh" type="MeshInstance3D" parent="LedgeA"]
+mesh = SubResource("BoxMesh_ledge")
+
+[node name="RWalk" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, -0.1, -2.5)
+
+[node name="Shape" type="CollisionShape3D" parent="RWalk"]
+shape = SubResource("BoxShape3D_walk")
+
+[node name="Mesh" type="MeshInstance3D" parent="RWalk"]
+mesh = SubResource("BoxMesh_walk")
+
+[node name="LedgeB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.4, 1.5)
+collision_layer = 9
+
+[node name="Shape" type="CollisionShape3D" parent="LedgeB"]
+shape = SubResource("BoxShape3D_ledge")
+
+[node name="Mesh" type="MeshInstance3D" parent="LedgeB"]
+mesh = SubResource("BoxMesh_ledge")
+
+[node name="BridgeB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69, 0.3, -2)
+
+[node name="Shape" type="CollisionShape3D" parent="BridgeB"]
+shape = SubResource("BoxShape3D_bridgeb")
+
+[node name="Mesh" type="MeshInstance3D" parent="BridgeB"]
+mesh = SubResource("BoxMesh_bridgeb")
+
+[node name="BridgeC" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69, 0.3, -16)
+
+[node name="Shape" type="CollisionShape3D" parent="BridgeC"]
+shape = SubResource("BoxShape3D_bridgec")
+
+[node name="Mesh" type="MeshInstance3D" parent="BridgeC"]
+mesh = SubResource("BoxMesh_bridgec")
+
+[node name="Channel" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, -1.25, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Channel"]
+shape = SubResource("BoxShape3D_channel")
+
+[node name="Mesh" type="MeshInstance3D" parent="Channel"]
+mesh = SubResource("BoxMesh_channel")
+
+[node name="CanalHaz1" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 0)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="HazShape" type="CollisionShape3D" parent="CanalHaz1"]
+shape = SubResource("BoxShape3D_hazW")
+
+[node name="HazMesh" type="MeshInstance3D" parent="CanalHaz1"]
+mesh = SubResource("BoxMesh_hazWm")
+
+[node name="CanalHaz2" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, -0.5, 0)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="HazShape" type="CollisionShape3D" parent="CanalHaz2"]
+shape = SubResource("BoxShape3D_hazW")
+
+[node name="HazMesh" type="MeshInstance3D" parent="CanalHaz2"]
+mesh = SubResource("BoxMesh_hazWm")
+
+[node name="ArcadeFloor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, -0.5, -37)
+
+[node name="Shape" type="CollisionShape3D" parent="ArcadeFloor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Mesh" type="MeshInstance3D" parent="ArcadeFloor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="SB_W1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 0.4, -31)
+
+[node name="Shape" type="CollisionShape3D" parent="SB_W1"]
+shape = SubResource("BoxShape3D_sb")
+
+[node name="Mesh" type="MeshInstance3D" parent="SB_W1"]
+mesh = SubResource("BoxMesh_sb")
+
+[node name="SB_F" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 0.4, -36.5)
+
+[node name="Shape" type="CollisionShape3D" parent="SB_F"]
+shape = SubResource("BoxShape3D_ledge")
+
+[node name="Mesh" type="MeshInstance3D" parent="SB_F"]
+mesh = SubResource("BoxMesh_ledge")
+
+[node name="SB_W2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0.4, -42.5)
+
+[node name="Shape" type="CollisionShape3D" parent="SB_W2"]
+shape = SubResource("BoxShape3D_sb")
+
+[node name="Mesh" type="MeshInstance3D" parent="SB_W2"]
+mesh = SubResource("BoxMesh_sb")
+
+[node name="ArcHaz1" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, -0.3, -36.5)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="HazShape" type="CollisionShape3D" parent="ArcHaz1"]
+shape = SubResource("BoxShape3D_hazA")
+
+[node name="HazMesh" type="MeshInstance3D" parent="ArcHaz1"]
+mesh = SubResource("BoxMesh_hazAm")
+
+[node name="ArcHaz2" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, -0.3, -45.5)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="HazShape" type="CollisionShape3D" parent="ArcHaz2"]
+shape = SubResource("BoxShape3D_hazA")
+
+[node name="HazMesh" type="MeshInstance3D" parent="ArcHaz2"]
+mesh = SubResource("BoxMesh_hazAm")
+
+[node name="BeaconPlatform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, -72)
+
+[node name="Shape" type="CollisionShape3D" parent="BeaconPlatform"]
+shape = SubResource("BoxShape3D_plat")
+
+[node name="Mesh" type="MeshInstance3D" parent="BeaconPlatform"]
+mesh = SubResource("BoxMesh_plat")
+
+[node name="Plinth" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 4, -87)
+collision_layer = 9
+
+[node name="Shape" type="CollisionShape3D" parent="Plinth"]
+shape = SubResource("BoxShape3D_plinth")
+
+[node name="Mesh" type="MeshInstance3D" parent="Plinth"]
+mesh = SubResource("BoxMesh_plinth")
+
+[node name="Shaft" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 12.5, -88)
+collision_layer = 9
+
+[node name="Shape" type="CollisionShape3D" parent="Shaft"]
+shape = SubResource("BoxShape3D_shaft")
+
+[node name="Mesh" type="MeshInstance3D" parent="Shaft"]
+mesh = SubResource("BoxMesh_shaft")
+
+[node name="FallNet" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -12.5, -45)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hz")
+
+[node name="NetShape" type="CollisionShape3D" parent="FallNet"]
+shape = SubResource("BoxShape3D_net")
+
+[node name="LampL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.6, 5)
+mesh = SubResource("BoxMesh_lamp")
+
+[node name="LampR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.6, 5)
+mesh = SubResource("BoxMesh_lamp")
+
+[node name="NpcSilhouette" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.2, -10)
+mesh = SubResource("BoxMesh_npc")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 9)
+
+[node name="RN_H1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+node_id = "rn_hub_1"
+
+[node name="RN_H2" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -8)
+node_id = "rn_hub_2"
+
+[node name="RN_H3" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -6)
+node_id = "rn_hub_3"
+
+[node name="RN_C1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.3, -2.5)
+node_id = "rn_canal_1"
+
+[node name="RN_CM" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.8, 1.5)
+node_id = "rn_canal_mid"
+
+[node name="RN_C2" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 0.3, -4)
+node_id = "rn_canal_2"
+
+[node name="RN_S1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 0, -27)
+node_id = "rn_arcade_1"
+
+[node name="RN_S2" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.4, -31)
+node_id = "rn_arcade_2"
+
+[node name="RN_S3" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0.4, -42.5)
+node_id = "rn_arcade_3"
+
+[node name="RN_B1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, -46)
+node_id = "rn_beacon_1"
+
+[node name="RN_B2" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76, 0.4, -66)
+node_id = "rn_beacon_2"
+
+[node name="RN_T0" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0, -66)
+node_id = "rn_tower_0"
+
+[node name="RN_T1" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 8.5, -87)
+node_id = "rn_tower_1"
+
+[node name="RN_TB" parent="." instance=ExtResource("2_rn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 8.5, -91)
+node_id = "rn_beacon_tower"
+propagation_tiers = 20
+
+[node name="CP_Hub" parent="." instance=ExtResource("3_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+checkpoint_id = "cp_hub"
+
+[node name="CP_Canal" parent="." instance=ExtResource("3_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1, -2.5)
+checkpoint_id = "cp_canal"
+
+[node name="CP_Arcade" parent="." instance=ExtResource("3_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 1, -28)
+checkpoint_id = "cp_arcade"
+
+[node name="CP_Tower" parent="." instance=ExtResource("3_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 1, -60)
+checkpoint_id = "cp_tower"
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 12, 18, 10)
+light_energy = 0.75
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_blk")

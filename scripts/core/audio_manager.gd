@@ -281,6 +281,10 @@ func _play_3d(event_path: String, bus: String, pos: Vector3, volume_db: float,
 
 func _register_voice(p: Node, volume_db: float, priority: int,
 		pos: Vector3) -> Node:
+	# Prune voices freed with their scene (external frees skip _kill_voice).
+	for i in range(_voices.size() - 1, -1, -1):
+		if not is_instance_valid(_voices[i]):
+			_voices.remove_at(i)
 	var limit := int(VOICE_LIMITS.get(_event_of(p), DEFAULT_VOICE_LIMIT))
 	var family := _event_of(p)
 	var count := 0
@@ -308,6 +312,8 @@ func _register_voice(p: Node, volume_db: float, priority: int,
 
 
 func _event_of(p: Node) -> String:
+	if not is_instance_valid(p):
+		return ""
 	var stream: AudioStream = p.get("stream")
 	if stream == null:
 		return ""
